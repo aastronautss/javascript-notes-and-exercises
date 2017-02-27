@@ -758,3 +758,414 @@ for (var i = 0; i < 10; ) {
   i++;
 }
 ```
+
+## Functions and Variable Scope
+
+### Defining Functions
+
+JS uses functions as the basic unit of reusable code. Like variables, functions need to be declared. Here are a function declaration's components:
+
+- The `function` keyword.
+- The name of the function.
+- A list of comma separated parameters.
+- A block of statements (the function body)
+
+Here is a simple function, along with a few calls of it:
+
+```javascript
+function triple(number) {
+  console.log('tripling in process...');
+  return number + number + number;
+}
+
+triple(5); // 15
+
+var someNumber = 5;
+triple(someNumber); // 15
+
+var result = triple(5);
+result; // 15
+```
+
+`triple` takes one argument and calls it `number`. It has two statements inside its block. Note the `return` statement; it specifies the value returned by the function. In all three calls, the function returns a value of 15. You can use the return value immediately or save them for later use. You can even ignore them.
+
+If a function does not include a `return` statement or its `return` statement does not include a value, a function returns the value `undefined`.
+
+#### Parameters vs. Arguments
+
+```javascript
+function multiply(a, b) {
+  return a * b;
+}
+```
+
+We say that the function `multipley` takes two _parameters_, `a` and `b`. We call the actual values passed into a function during execution its arguments. In the following code, `5` and `6` are the function call's _arguments_.
+
+```javascript
+multiply(5, 6); // 30
+```
+
+JS makes the arguments passed into a function available to the function as local variables with the same names as the function's parameters. Within the function body, we call these local vars arguments.
+
+If you are _defining_ a function, then you're using _parameters_. If you're _invoking_ a function, then you are using _arguments_.
+
+### Function Invocations and Arguments
+
+Functions can be invoked by appending `()` to its name.
+
+```javascript
+function startle() {
+  console.log('Yikes!');
+}
+
+startle(); //=> Yikes!
+```
+
+Function names are nothing special in JS. They are just local variables that happen to have a Function as a value. Since `startle` is just a local variable, we can assign it to a new local variable and call the function using that new name:
+
+```javascript
+var surprise = startle;
+surprise(); //=> Yikes!
+```
+
+_There are other ways to invoke a function in JS. We'll discuss these in a future course._
+
+Many functions take parameters. We pass arguments into these functions by putting them between the parentheses, separated by commas:
+
+```javascript
+function takeTwo(a, b) {
+  console.log(a);
+  console.log(b);
+  console.log(a + b);
+}
+
+takeTwo(1, 2); //=> 1\n2\n3
+```
+
+Let's call it with only one argument:
+
+```javascript
+takeTwo(1);
+
+// logs:
+// 1
+// undefined
+// NaN
+```
+
+Let's take note of what's happening:
+
+1. Calling a function with too few arguments does not raise an error.
+2. Within a function, an argument that wasn't provided in the invocation will have the value `undefined`.
+3. The `NaN` that was logged is the result by the fact that `b` is `undefined`. This isn't the direct result of the missing paramter--it's just how JS treats an `undefined` value when we add it to a number.
+
+We can pass more arguments than the function expects:
+
+```javascript
+takeTwo(1, 2, 4);
+
+// logs:
+// 1
+// 2
+// 3
+```
+
+Extra arguments are simply ignored.
+
+### Nested Functions
+
+We can nest functions inside of other functions.
+
+```javascript
+function circumfrences(radius) {
+  function double(number) {
+    return 2 * number;
+  }
+
+  return 3.14 * double(radius);
+}
+```
+
+There's no limit for the depth of nested functions. This will prove to be pretty cool later on.
+
+### Functional Scopes and Lexical Scoping
+
+A variable's scope is the part of the program that can access that variable by name. This is a characteristic in all programming languages. Scoping rules describe how and where the language finds and retrieves values from previously declared variables.
+
+In JS, every Function creates a new variable scope. Here's what that means.
+
+#### The Global Scope
+
+JS programs with no functions exist entirely within a single scope:
+
+```javascript
+var name = 'Julian';
+console.log(name);
+
+for (var i = 0; i < 3; i++) {
+  console.log(name);
+}
+
+console.log(name);
+```
+
+`name `is available everywhere in the program after that line. `Julian` is logged five times as a result.
+
+#### Function Scope
+
+Let's add a function to the picture:
+
+```javascript
+var name = 'Julian';
+
+function greet() {
+  console.log(name);
+}
+```
+
+`greet` can access `name`, since the code within a Function inherits access to all variables in all surrounding scopes:
+
+```javascript
+greet(); //=> Julian
+```
+
+Function scopes nest inside each other. The code within one scope can access any vars in the same scope or any surrounding scope. This works nom atter how deeply nested a function is.
+
+```javascript
+var name = 'Julian';
+
+function greet() {
+  function say() {
+    console.log(name);
+  }
+
+  say();
+}
+
+greet(); //=> 'Julian'
+```
+
+#### Closures
+
+"When we define a function, it retains access to, or _closes over_, the variable scope currently in effect. We call this _creating a closure_. A closure retains references to everythign that is in scope when the closure is created, and retains those references for as long as the closure exists. This means the function can still access those references wherever we invoke the function."
+
+The _value_ of a varialbe can change after creating a closure that includes a variable. When this happens, the closure sees the new value; the old value is no longer available:
+
+```javascript
+var count = 1;
+
+function logCount() { // create a closure
+  console.log(count);
+}
+
+logCount();            // logs: 1
+
+count++;               // reassign count
+logCount();            // closure sees new value for count; logs: 2
+```
+
+#### Lexical Scoping
+
+JS uses _lexical scoping_ to resolve variables. That is, it uses the structure of the source code to determine the variable's scope.There is a heirarchy of scopes from the local scope of the code up to the program's global scope.
+
+When JS tries to find a variable, it searches this heirarchy from the bottom to the top. It stops and returns the first variable it finds with a matching name. This means that variables in a lower scope can _shadow_, or hide, a variable with the same name in a higher scope.
+
+Most mainstream programming languages use this (also known as _static scoping_). Some languages use "dynamic scoping", which uses the scope of the calling function as the outer scope of a function.
+
+#### Adding Variables to the Current Scope
+
+There are two ways to create a variable in the current scope. The first uses the `var` keywoard; the second uses arguments passed to a function.
+
+#### Variable Assignment.
+
+Scoping rules paply to both assignment and referencing equally.
+
+```javascript
+var country = 'Spain';
+function update() {
+  country = 'Liechtenstein';
+}
+
+console.log(country);  // logs: Spain
+
+update();
+console.log(country);  // logs: Liechtenstein
+```
+
+If JS can't find a matching variable, __it creates a new global variable instead__. This is rarely what you want, and it can be the source of subtle bugs.
+
+```javascript
+// no other code above.
+function assign() {
+  var country1 = 'Liechtenstein';
+  country2 = 'Spain';
+}
+
+assign();
+console.log(country2); //=> Spain
+console.log(country1); // ReferenceError
+```
+
+`country2` isn't declared anywhere else in the program, so JS created a new 'global' variable when the code is run. This makes it so we can access the variable from the global scope.
+
+#### Variable Shadowing
+
+Shadowing happens when a local scope declares a variable with the same name as a varialbe in one of its outer scopes. All references to that name within that scope will point to the inner scoped variable, and the outer scoped variable is inaccessible.
+
+### Hoisting
+
+#### Hositing for Variable Declarations
+
+JS process variable declarations before it executes any code within a scope. So, declaring a variable anywhere in a scope is equivalent to declaring it at the top of the scope. We call this "hosting." JS effectively moves the variable declarations (not their assignments, even if the declaration and assignment are on the same line) to the top of the scope.
+
+```javascript
+function hello() {
+  var b = 'hello';
+  return a;
+
+  var a = 'world';
+}
+
+var b = 123;
+var b = 456;
+
+hello();
+```
+
+The invocation of `hello` will return `undefined`, since the above code is equivalent to:
+
+```javascript
+var a;          // hoisted to the top of the global scope
+var b;
+
+function hello() {
+  var b;
+  var a;        // hoisted to the top of the "hello" functional scope
+
+  b = 'hello';
+
+  return a;
+
+  a = 'world';
+}
+
+a = 123;
+b = 456;
+
+hello();
+```
+
+Though variable assignments are frequently included with their declarations, assignments are not hoisted with their declarations. In the above case, `a` is shadowed over the global `a` within `hello`, so by the time the `return` statement is executed, it is `undefined`.
+
+#### Hoisting for Function Declarations
+
+JS also hoists function declarations to the top of the scope: the entire thing, including the body:
+
+```javascript
+console.log(hello());
+
+function hello() {
+  return 'hello world';
+}
+```
+
+This will log `'hello world'`, rather than an error, which we may expect.
+
+#### Hoisting for Function Expressions
+
+Function expressions involve assigning a function to a declared variable; since such expressions are just variable declarations, they obey hoisting rules for var declarations rather than function declarations.
+
+```javascript
+console.log(hello());
+
+var hello = function() {
+  return 'hello world';
+};
+```
+
+The above code will throw at the first line.
+
+#### Best Practice to Avoid Confusion with Hoisting
+
+Follow these two rules to keep the code clean, expression, and free of weird bugs.
+
+- Always declare variables at the top of their scope.
+- Always declare functions before calling them.
+
+### Function Declarations and Function Expressions
+
+#### Function Declarations
+
+Here's a function declaration:
+
+```javascript
+function hello() {
+  return 'hello world!';
+}
+
+console.log(typeof hello); //=> function
+```
+
+A function declaration defines a var whose type is `function`. The value of the function variable is the function itself. It obeys scoping rules, and we can use it exactly like other JS variables.
+
+```javascript
+function outer() {
+  function hello() {
+    return 'hello world';
+  }
+
+  return hello();
+}
+
+console.log(typeof hello); // Error
+
+var foo = outer;
+foo(); // We assign `foo` to whatever `outer` was pointing to, which happens to be a function. We can thus invoke whatever function `foo` points to.
+```
+
+Function declarations are similar to variable declarations. Instead of `var`, they start with `function`.
+
+#### Function Expressions
+
+A function expression defines a function as a part of a larger expression syntax (typically a variable assignment).
+
+```javascript
+var hello = function() {
+  return 'hello';
+};
+
+console.log(typeof hello); //=> function
+console.log(hello());      //=> hello
+```
+
+We don't have to assign function expressions to variables. In these cases, we refer to them as anonymous functions. These functions can be returned from other functions.
+
+```javascript
+var foo = function() {
+  return function() {
+    return 1;
+  };
+};
+
+var bar = foo(); // bar is assigned to the value returned by `foo`, which in this case is another function.
+
+bar(); // 1
+```
+
+#### Nested Function Expressions
+
+You can also name function expressions:
+
+```javascript
+var hello = function foo() {
+  console.log(typeof foo); // function
+};
+
+hello(); // function
+
+foo(); // Error: `foo` isn't defined.
+```
+
+This is super strange, though. The name of the function in this case is only availabe inside the function. Most function expressions aren't created in this way, but they're useful for debugging, for the purposes of looking through the call stack.
+
+###
