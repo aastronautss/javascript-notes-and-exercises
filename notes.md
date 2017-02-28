@@ -1168,4 +1168,153 @@ foo(); // Error: `foo` isn't defined.
 
 This is super strange, though. The name of the function in this case is only availabe inside the function. Most function expressions aren't created in this way, but they're useful for debugging, for the purposes of looking through the call stack.
 
-###
+## Arrays
+
+### Arrays Intro
+
+Arrays are the basic collection type in JS--a zero-indexed list of values. They use a standard literal syntax:
+
+```javascript
+[] // Empty
+[0, 1, 2] // Holds three values
+[42, 'hello', false, [3, 5], [true, 'hello']] // Arrays can contain any other object
+```
+
+You can also use the `Array` constructor. This isn't used very often, but here you go:
+
+```javascript
+var count = new Array(1, 2, 3);
+
+var count = [1, 2, 3]; // This is equivalent to the above.
+```
+
+We typically interact with arrays in the following ways:
+
+- Iterating through the array and performing actions on each value.
+- Accessing and manipulating specific elements of the array.
+
+#### Iterating Through an Array
+
+We can use a `for` loop to iterate through an array's elements. We know when to stop iterating with the `length` property in each array.
+
+```javascript
+var count = [1, 2, 3]
+count.length; // 3
+```
+
+Let's loop through this array.
+
+```javascript
+for (var i = 0; i < count.length; i++) {
+  console.log(count[i]);
+}
+```
+
+We can retrieve a value from an array at an index `i` using bracket notation, per above.
+
+```javascript
+count[1]; // 2
+```
+
+Note that arrays in JS are zero-indexed. The first value in the array is indexed at `0`, the second at `1`, and so on.
+
+#### Accessing, modifiying, and detecting values
+
+Again, arrays are zero-indexed. Per above, you can retrieve values using bracket notation. You can use similar notation to set a value.
+
+```javascript
+count[1] = 5;
+count; // [1, 5, 3]
+```
+
+We can assign a value to any location within the array. If we skip indexes, JS will automatically insert an `undefined` value in the skipped positions.
+
+```javascript
+count[3] = 4;
+count; // [1, 5, 3, 4]
+
+count[6] = 7;
+count; // [1, 5, 3, 4, undefined, undefined, 7]
+count[4]; // undefined
+count.length; // 7
+```
+
+The `length` property is one higher than the highest index. We can manually set the this property, too.
+
+```javascript
+count.length = 8;
+count; // [1, 5, 3, 4, undefined, undefined, 7, undefined]
+```
+
+If we set it to a value smaller than its current length, it'll truncate the array.
+
+```javascript
+count.length = 3;
+count; // [1, 5, 3]
+```
+
+#### Arrays are Objects
+
+Remember that we can use the `typeof` operator on a value to get a string containing its type.
+
+```javascript
+typeof 1; // 'number'
+```
+
+If we use it on an array, we get something surprising.
+
+```javascript
+typeof [1]; // 'object'
+```
+
+This is because arrays in JS are special forms of objects (which we'll discuss later). If we want to know when something is an array, we can use the `isArray` function, which is a property of `Array`.
+
+```javascript
+Array.isArray([]); // true
+Array.isArray('array'); // false
+```
+
+### Array Operations
+
+See: `exercises.md` for implementations of our artisanal functions.
+
+JS has an `Array` global object, which has something called a prototype object. This prototype object defines methods for arrays; all JS arrays inherit from the prototype object. We'll discuss this later.
+
+### Arrays and Operators
+
+Operators such as `+` and `<=` are pretty useful when it comes to numbers and strings, but they're almost useless with Arrays.
+
+#### Arithmetic Operators
+
+`+` coerces an array into a string, so if we try the following, we'll get sort of a stupid result:
+
+```javascript
+var arr = ['A', 'H', 'E'];
+arr + 'B'; // 'A,H,EB'
+```
+
+The string coercion of an array just lists its values with commas in between. The second operand is just concatinated onto the coerced string.
+
+We get similarly useless results for the other operators. These operators run without producing a warning or error, so they may give us unpredictable bugs.
+
+#### Comparison Operators
+
+Consider the following:
+
+```javascript
+var friends = ['Bob', 'Josie', 'Sam'];
+var enemies = ['Bob', 'Josie', 'Sam'];
+console.log(friends == enemies);        // false
+console.log(friends === enemies);       // false
+```
+
+Since an array is an object, and equality operators judge references when working with objects, the above two arrays are technically unequal. If we point two variables to the _same_ array, these operators will return `true`.
+
+```javascript
+var friends = ['Bob', 'Josie', 'Sam'];
+var enemies = friends;
+friends == enemies; // true
+friends === enemies; // true
+```
+
+Don't use `>`, `<`, and so on with arrays. They suck.

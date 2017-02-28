@@ -590,3 +590,92 @@ function rot13(str) {
   return result;
 }
 ```
+
+## Arrays
+
+### Array Operations
+
+#### push, pop, shift, unshift
+
+```javascript
+// 1.
+
+function push(arr, val) {
+  arr[arr.length] = val;
+  return arr.length;
+}
+
+// 2.
+
+function pop(arr) {
+  var result = arr[arr.length - 1];
+  arr.length = arr.length - 1;
+  return result;
+}
+
+// 3.
+
+function unshift(arr, val) {
+  for (var i = arr.length - 1; i >= 0; i--) {
+    arr[i + 1] = arr[i];
+  }
+
+  arr[0] = val;
+  return arr.length;
+}
+
+// 4.
+
+function shift(arr) {
+  var result = arr[0];
+  var oldLength = arr.length;
+  for (var i = 0; i < oldLength; i++) {
+    arr[i] = arr[i + 1];
+  }
+
+  arr.length--;
+  return result;
+}
+```
+
+#### indexOf and lastIndexOf
+
+```javascript
+// 1.
+
+function indexOf(arr, val) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === val) return i;
+  }
+
+  return -1;
+}
+
+// 2.
+
+function lastIndexOf(arr, val) {
+  var result = -1;
+
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === val) result = i;
+  }
+
+  return result;
+}
+```
+
+#### slice, splice, concat, and join
+
+```javascript
+// 1.
+
+function slice(arr, start, end) {
+  var newArr = [];
+
+  for (var i = start; i < end; i++) {
+    newArr[i - start] = arr[i];
+  }
+
+  return newArr;
+}
+```
