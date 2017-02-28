@@ -679,3 +679,28 @@ function slice(arr, start, end) {
   return newArr;
 }
 ```
+
+## Objects
+
+### Properties
+
+```javascript
+// 4.
+
+function wordCount(str) {
+  var words = str.split(' ');
+  var counts = {};
+  var word;
+
+  for (var i = 0; i < words.length; i++) {
+    word = words[i];
+    if (counts[word]) {
+      counts[word] += 1;
+    } else {
+      counts[word] = 1;
+    }
+  }
+
+  return counts;
+}
+```

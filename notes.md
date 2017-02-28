@@ -1318,3 +1318,328 @@ friends === enemies; // true
 ```
 
 Don't use `>`, `<`, and so on with arrays. They suck.
+
+## Objects
+
+### Objects Intro
+
+JS is _object-oriented_. We can use objects to organize code and data.
+
+#### Standard Built-in Objects
+
+JS has a few built-in objects, including `String`, `Array`, `Object`, `Match`, `Date`, and so on. When you call, for example, `toUpperCase` on a String, you're calling that method on the built-in `String` object.
+
+JS has both primitive and object Strings. When we call a method on a primitive, JS will automatically convert it to an object.
+
+```javascript
+a = 'hi'; // Create a primitive
+typeof a; // 'string' <-- this is a primitive string value
+
+var aObj = new String(a); // Create a new object from the primitive
+typeof aObj; // 'object' <-- this isn't a primitive--instead, it's a String object
+
+aObj.toUpperCase(); // we can call methods on objects...
+a.toUpperCase(); // ... or their corresponding primitives
+```
+
+For the most part, we can treat primitive values as objects, calling methods on them and so on, and things will just work.
+
+#### Custom Objects
+
+Objects use a neat literal notation:
+
+```javascript
+var colors = {
+  red: '#f00',
+  orange: '#ff0',
+};
+
+typeof colors; // 'object'
+colors.red; // '#f00'
+```
+
+We can also use `Object.create()` to create a new object--we'll cover this later. Objects are also created when we use the `new` operator on constructor functions, like `new String('foo')`.
+
+#### Properties
+
+Objects are containers for data and behavior (these two things are one in the same in JS, but we'll cover that later). Data consists of its name and its value, and the values represent the attributes of an object. In JS, these are called properties. For example:
+
+```javascript
+var colors = {
+  red: '#f00',
+  orange: '#ff0',
+};
+```
+
+`colors` has two properties: `red` and `orange`. Their values are whatever we want them to be, but in this case they are both strings. In object literal notation, a property takes this form `name: value`, and each property is separated by a comma.
+
+We can retrieve an object's property using dot notation:
+
+```javascript
+colors.red; // '#f00'
+```
+
+We can assign new properties to an object post-hoc:
+
+```javascript
+colors.blue = '#00f';
+```
+
+We can reassign a property too:
+
+```javascript
+colors.red = 'rgb(255, 0, 0)';
+```
+
+The names for a properties are just strings. If the name of a property is a valid variable name, we don't need to use string literal notation when defining it. However, we can make the name any legal string that we want:
+
+```javascript
+var obj = {
+  standardName: 'this works',
+  'anotherStandardName': 'this works too',
+  'spaces are cool': 'whoa this works!',
+  'G$#@@#@svsd32': 'oh my god this works too',
+  'fds^%$^$    f3232fewf': 'this works as well!'
+};
+```
+
+Let's try retrieving some of these values using dot notation:
+
+```javascript
+obj.standardName; // 'this works'
+obj.anotherStandardName; // 'this works too'
+obj.G$#@@#@svsd32; // SyntaxError
+```
+
+Dot notation only works with the properties that are valid variable names. We need to use bracket notation to retrieve the invalid ones:
+
+```javascript
+obj['G$#@@#@svsd32']; // 'oh my god this works too'
+```
+
+This also allows us to pass variables and expressions into the object to retrieve arbitrary properties:
+
+```javascript
+var prop = 'fds^%$^$    f3232fewf'
+obj[prop]; // 'this works as well!'
+```
+
+What happens when we try to retrieve the `standardName` property from the object using bracket notation?
+
+```javascript
+obj[standardName]; // ReferenceError
+```
+
+This throws because, as I mentioned above, bracket notation will evaluate the expression and use the result of that to try to match a property name in the object. In the above case, it's trying to find a variable called `standardName` which doesn't exist in this scope. If we wanted to retrieve the `standardName` property from `obj` using bracket notation, we need to pass that name in as a string:
+
+```javascript
+obj['standardName']; // 'this works'
+```
+
+Numbers get coerced into strings when used as a property name in an object:
+
+```javascript
+obj[4] = 'funky property'
+obj; // { ... '4': 'funky property', ...}
+```
+
+We can use the `delete` operator to completely remove a property from an object:
+
+```javascript
+delete obj.standardName;
+```
+
+#### Methods
+
+Functions define the behavior of an object. When they are contained in an object, we call them _methods_. To call a method on an object, you access the method as though it is a property (it is!), and call it by appending parens. You can pass arguments to the mmethod by listing them between the parens, just like with a function call. In fact, JS methods are indistinguishible from functions with some caveats.
+
+```javascript
+(5.234).toString(); // '5.234'
+'pizza'.match(/z/); // [ 'z', index: 2, input: 'pizza' ]
+Math.ceil(8.2312); // 9
+Date.now(); // some Number
+```
+
+We can add a method to an object by making a function the value of a property.
+
+```javascript
+var hasAMethod = {
+  thisMethod: function() {
+    console.log('This is funny');
+  },
+  a: 'abc',
+};
+
+hasAMethod.thisMethod(); // logs 'This is funny'
+```
+
+### Stepping through Object Properties
+
+Objects are a collection type: a single object can store multiple values. We can loop through each value using a `for...in` loop:
+
+```javascript
+var nick;
+
+var nicknames = {
+  joseph: 'Joey',
+  margaret: 'Maggie',
+};
+
+for (nick in nicknames) {
+  console.log(nick);
+  console.log(nicknames[nick]);
+}
+
+// logs on the console:
+joseph
+Joey
+margaret
+Maggie
+```
+
+We can also just get an array of the object's property names with `Object.keys`:
+
+```javascript
+Object.keys(nicknames); // ['joseph', 'margaret']
+```
+
+### Arrays and Objects
+
+When should we use an array, and when should we use an object?
+
+Arrays should be used when the data structure is more like a list that contains many items. Use an object when we want to represent the data as an entity with many parts (like a person).
+
+#### Arrays are Objects
+
+Arrays are objects. Here's an example from the course to demonstrate.
+
+```javascript
+var a = ['hello', 'world'];
+
+console.log(typeof a);            // "object"
+console.log(a['1']);              // "world", object's bracket notation to access value
+console.log(Object.keys(a));      // ["0", "1"], the keys of the object!
+
+// line 1 is equivalent of:
+
+var a = {
+  '0': 'hello',
+  '1': 'world',
+};
+```
+
+Now we know why we can use the `length` property with an array. It's just a value that is stored to keep track of the length of the array.
+
+#### Object Operations and Arrays
+
+We can use use stuff like `in` and `delete`, but don't do it.
+
+### Mutability of Values and Objects
+
+One main difference between primitives and objects is _mutability_. Primitives are immutable--the value itself cannot ever be changed. When we perform operations on primitives, they return a new value. Objects are mutable--you can modify them without changing their identity. If we change a property on an object, that object is still the same object.
+
+The course has a bunch of fancy illustrations, but here's a summary: a variable assigned to an object (such as an array), that variable is a pointer to the object in memory. When we change properties (e.g. `arr[3] = 'z'`), we are changing the object to which that variable points (in this case, `arr` is pointing to an array).
+
+We need to keep this in mind when passing objects and arrays around through functions. If the function performs a mutating operation on that array, the array is altered, which affects the original reference to that array:
+
+```javascript
+function doSomething(arr) {
+  arr[0] = 25;
+}
+
+var affected = [1, 2, 3];
+doSomething(affected);
+affected; // [25, 2, 3]
+```
+
+### Pure Functions and Side Effects
+
+Per above, functions can modify external values. They can directly modify variables defined in outer scopes, or they can mutate objects passed into the function as arguments. These are commonly known as _side effects_: changes by a function to its outside world.
+
+When a function doesn't have any side effects, we call that a _pure function_. They operate like a function in math: the output relies purely on its input (pure functions always return values). Given the same argument values, it will always return the same result.
+
+Here's a pure function:
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+```
+
+Here's a function with side effects:
+
+```javascript
+var sum = 0;
+function add(a, b) {
+  sum = a + b;
+}
+```
+
+It changes the value of `sum`, a variable that exists outside its local scope.
+
+#### Pure Function Return Value vs Non-Pure Function Side Effects
+
+Always be mindful of whether you want a pure function or you want to use side effects. If we want to use a function for its return value, you usually want the function call as part of an expression, or as the right hand side of an assignment.
+
+```javascript
+function joinString(a, b, c) {
+  return a.concat(b, c);
+}
+
+var result = joinString('hello,', ' ', 'world!');
+console.log(result);
+```
+
+We expect the `var result =` line to have a function call that has no side effects. We're capturing and using a return value.
+
+If we want a function to have side effects, we're typically passing the variables we want to mutate as arguments.
+
+### Working with the Funciton Arguments Object
+
+Functions have an `arguments` object in their bodies which allow us to access the arguments of a function regardless of how they're assigned as parameters. The `arguments` object is an "array-like" object inside of all functions.
+
+```javascript
+function logArgs(a) {
+  console.log(arguments[0]);
+  console.log(arguments[1]);
+  console.log(arguments.length);
+}
+
+logArgs(1, 'a');
+
+// logs:
+// 1
+// a
+// 2
+```
+
+`arguments` is an "array-like" object in that we can access its values using bracket notation and that it has a `length` property. However, it does not inherit from `Array.prototype`, and so it doesn't have any Array methods (like `pop`, etc).
+
+We can convert `arguments` to an array using a super shitty string of property calls:
+
+```javascript
+var args = Array.prototype.splice.call(arguments);
+```
+
+We're borrowing `splice` from `Array.prototype` and calling it as if `arguments` is calling it. Since we're not passing any additional args into `splice`, it returns an actual array with the same values as `arguments`.
+
+#### Functions that Accept Any Number of Arguments
+
+Say we have a function that adds two numbers together. It takes two arguments, `a`, and `b`. Suppose we want to extend this method to include an arbitrary number of numbers and add them together. We can do this with `arguments`.
+
+```javascript
+function sum() {
+  var result = 0;
+  for (var i = 0; i < arguments.length; i++) {
+    result += arguments[i];
+  }
+
+  return result;
+}
+
+sum(); // 0
+sum(1, 2, 3); // 6
+```
+
+This isn't very expressive, since it looks like the function is designed to take zero arguments. So we really only ever want to use `arguments` when we're absolutely sure we want our function to take an arbitrary number of args. ES6 addresses this with the curry syntax `(...args)`.
+
